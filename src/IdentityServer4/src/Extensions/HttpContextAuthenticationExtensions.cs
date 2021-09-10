@@ -20,23 +20,23 @@ namespace Microsoft.AspNetCore.Http
         /// Signs the user in.
         /// </summary>
         /// <param name="context">The manager.</param>
-        /// <param name="user">The IdentityServer user.</param>
+        /// <param name="identityServerUser">The IdentityServer user.</param>
         /// <returns></returns>
-        public static async Task SignInAsync(this HttpContext context, IdentityServerUser user)
+        public static async Task SignInAsync(this HttpContext context, IdentityServerUser identityServerUser)
         {
-            await context.SignInAsync(await context.GetCookieAuthenticationSchemeAsync(), user.CreatePrincipal());
+            await context.SignInAsync(await context.GetCookieAuthenticationSchemeAsync(), identityServerUser.CreatePrincipal());
         }
 
         /// <summary>
         /// Signs the user in.
         /// </summary>
         /// <param name="context">The manager.</param>
-        /// <param name="user">The IdentityServer user.</param>
+        /// <param name="identityServerUser">The IdentityServer user.</param>
         /// <param name="properties">The authentication properties.</param>
         /// <returns></returns>
-        public static async Task SignInAsync(this HttpContext context, IdentityServerUser user, AuthenticationProperties properties)
+        public static async Task SignInAsync(this HttpContext context, IdentityServerUser identityServerUser, AuthenticationProperties properties)
         {
-            await context.SignInAsync(await context.GetCookieAuthenticationSchemeAsync(), user.CreatePrincipal(), properties);
+            await context.SignInAsync(await context.GetCookieAuthenticationSchemeAsync(), identityServerUser.CreatePrincipal(), properties);
         }
 
         internal static ISystemClock GetClock(this HttpContext context)
