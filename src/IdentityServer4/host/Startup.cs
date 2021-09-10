@@ -17,10 +17,12 @@ using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using FirstAgenda.IdentityServer.Core;
+using IdentityServer4.Test;
 using IdentityServerHost.Extensions;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.HttpOverrides;
-using IdentityServerHost.Quickstart.UI;
+using Microsoft.EntityFrameworkCore;
 
 namespace IdentityServerHost
 {
@@ -42,6 +44,9 @@ namespace IdentityServerHost
             // cookie policy to deal with temporary browser incompatibilities
             services.AddSameSiteCookiePolicy();
 
+            services.AddDbContext<FirstAgendaIdentityStoreContext>(options =>
+                options.UseSqlServer("Data Source=localhost;Initial Catalog=local_firstagenda;User Id=sa;Password=S0me_Passw0rd;"));
+            
             var builder = services.AddIdentityServer(options =>
                 {
                     options.Events.RaiseSuccessEvents = true;
@@ -64,7 +69,8 @@ namespace IdentityServerHost
                 .AddExtensionGrantValidator<Extensions.NoSubjectExtensionGrantValidator>()
                 .AddJwtBearerClientAuthentication()
                 .AddAppAuthRedirectUriValidator()
-                .AddTestUsers(TestUsers.Users)
+                // .AddTestUsers(TestUsers.Users)
+                .AddTestUsers()
                 .AddProfileService<HostProfileService>()
                 .AddCustomTokenRequestValidator<ParameterizedScopeTokenRequestValidator>()
                 .AddScopeParser<ParameterizedScopeParser>()

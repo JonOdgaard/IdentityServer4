@@ -7,13 +7,14 @@ using IdentityServer4.Test;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Json;
+using FirstAgenda.IdentityServer.Core.Models;
 using IdentityServer4;
 
 namespace IdentityServerHost.Quickstart.UI
 {
     public class TestUsers
     {
-        public static List<TestUser> Users
+        public static List<FirstAgendaAccount> Users
         {
             get
             {
@@ -25,9 +26,9 @@ namespace IdentityServerHost.Quickstart.UI
                     country = "Germany"
                 };
                 
-                return new List<TestUser>
+                return new List<FirstAgendaAccount>
                 {
-                    new TestUser
+                    new FirstAgendaAccount
                     {
                         SubjectId = "818727",
                         Username = "alice",
@@ -43,7 +44,7 @@ namespace IdentityServerHost.Quickstart.UI
                             new Claim(JwtClaimTypes.Address, JsonSerializer.Serialize(address), IdentityServerConstants.ClaimValueTypes.Json)
                         }
                     },
-                    new TestUser
+                    new FirstAgendaAccount
                     {
                         SubjectId = "88421113",
                         Username = "bob",

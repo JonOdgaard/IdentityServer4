@@ -8,21 +8,22 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System;
+using FirstAgenda.IdentityServer.Core.Models;
 
 namespace IdentityServer4.Test
 {
     /// <summary>
     /// Store for test users
     /// </summary>
-    public class TestUserStore
+    public class TestUserStoreOriginal
     {
-        private readonly List<TestUser> _users;
+        private readonly List<FirstAgendaAccount> _users;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestUserStore"/> class.
+        /// Initializes a new instance of the <see cref="AccountStore"/> class.
         /// </summary>
         /// <param name="users">The users.</param>
-        public TestUserStore(List<TestUser> users)
+        public TestUserStoreOriginal(List<FirstAgendaAccount> users)
         {
             _users = users;
         }
@@ -55,7 +56,7 @@ namespace IdentityServer4.Test
         /// </summary>
         /// <param name="subjectId">The subject identifier.</param>
         /// <returns></returns>
-        public TestUser FindBySubjectId(string subjectId)
+        public FirstAgendaAccount FindBySubjectId(string subjectId)
         {
             return _users.FirstOrDefault(x => x.SubjectId == subjectId);
         }
@@ -65,7 +66,7 @@ namespace IdentityServer4.Test
         /// </summary>
         /// <param name="username">The username.</param>
         /// <returns></returns>
-        public TestUser FindByUsername(string username)
+        public FirstAgendaAccount FindByUsername(string username)
         {
             return _users.FirstOrDefault(x => x.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
         }
@@ -76,7 +77,7 @@ namespace IdentityServer4.Test
         /// <param name="provider">The provider.</param>
         /// <param name="userId">The user identifier.</param>
         /// <returns></returns>
-        public TestUser FindByExternalProvider(string provider, string userId)
+        public FirstAgendaAccount FindByExternalProvider(string provider, string userId)
         {
             return _users.FirstOrDefault(x =>
                 x.ProviderName == provider &&
@@ -90,7 +91,7 @@ namespace IdentityServer4.Test
         /// <param name="userId">The user identifier.</param>
         /// <param name="claims">The claims.</param>
         /// <returns></returns>
-        public TestUser AutoProvisionUser(string provider, string userId, List<Claim> claims)
+        public FirstAgendaAccount AutoProvisionUser(string provider, string userId, List<Claim> claims)
         {
             // create a list of claims that we want to transfer into our store
             var filtered = new List<Claim>();
@@ -140,7 +141,7 @@ namespace IdentityServer4.Test
             var name = filtered.FirstOrDefault(c => c.Type == JwtClaimTypes.Name)?.Value ?? sub;
 
             // create new user
-            var user = new TestUser
+            var user = new FirstAgendaAccount
             {
                 SubjectId = sub,
                 Username = name,

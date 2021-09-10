@@ -9,7 +9,7 @@ namespace IdentityServerHost.Extensions
 {
     public class HostProfileService : TestUserProfileService
     {
-        public HostProfileService(TestUserStore users, ILogger<TestUserProfileService> logger) : base(users, logger)
+        public HostProfileService(AccountStore users, ILogger<TestUserProfileService> logger) : base(users, logger)
         {
         }
 

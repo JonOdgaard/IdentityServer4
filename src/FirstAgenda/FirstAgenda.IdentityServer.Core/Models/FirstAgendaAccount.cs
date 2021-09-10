@@ -2,16 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityModel;
 using System.Collections.Generic;
 using System.Security.Claims;
+using IdentityModel;
 
-namespace IdentityServer4.Test
+namespace FirstAgenda.IdentityServer.Core.Models
 {
     /// <summary>
     /// In-memory user object for testing. Not intended for modeling users in production.
     /// </summary>
-    public class TestUser
+    public class FirstAgendaAccount
     {
         /// <summary>
         /// Gets or sets the subject identifier.

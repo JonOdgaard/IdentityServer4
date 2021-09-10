@@ -125,7 +125,31 @@ namespace IdentityServerHost.Configuration
                     AllowOfflineAccess = true,
 
                     AllowedScopes = allowedScopes
-                }
+                },
+                
+                new Client
+                {
+                    ClientId = "prepare_web",
+                    ClientName = "Prepare Web",
+                    ClientUri = "https://localhost:44315",
+
+                    ClientSecrets =
+                    {
+                        new Secret("secret".Sha256())
+                    },
+
+                    RequireConsent = false,
+                    AllowedGrantTypes = GrantTypes.Hybrid,
+
+                    RedirectUris = { "https://localhost:44315/signin-oidc" },
+                    FrontChannelLogoutUri = "https://localhost:44315/signout-oidc",
+                    PostLogoutRedirectUris = { "https://localhost:44315/signout-callback-oidc" },
+
+                    AllowOfflineAccess = true,
+
+                    AllowedScopes = allowedScopes,
+                    RequirePkce =  false
+                },
             };
         }
     }

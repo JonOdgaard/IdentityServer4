@@ -25,14 +25,14 @@ namespace IdentityServer4.Test
         /// <summary>
         /// The users
         /// </summary>
-        protected readonly TestUserStore Users;
+        protected readonly AccountStore Users;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestUserProfileService"/> class.
         /// </summary>
         /// <param name="users">The users.</param>
         /// <param name="logger">The logger.</param>
-        public TestUserProfileService(TestUserStore users, ILogger<TestUserProfileService> logger)
+        public TestUserProfileService(AccountStore users, ILogger<TestUserProfileService> logger)
         {
             Users = users;
             Logger = logger;
@@ -43,13 +43,13 @@ namespace IdentityServer4.Test
         /// </summary>
         /// <param name="context">The context.</param>
         /// <returns></returns>
-        public virtual Task GetProfileDataAsync(ProfileDataRequestContext context)
+        public virtual async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             context.LogProfileRequest(Logger);
 
             if (context.RequestedClaimTypes.Any())
             {
-                var user = Users.FindBySubjectId(context.Subject.GetSubjectId());
+                var user = await Users.FindBySubjectId(context.Subject.GetSubjectId());
                 if (user != null)
                 {
                     context.AddRequestedClaims(user.Claims);
@@ -57,8 +57,6 @@ namespace IdentityServer4.Test
             }
 
             context.LogIssuedClaims(Logger);
-
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -67,14 +65,12 @@ namespace IdentityServer4.Test
         /// </summary>
         /// <param name="context">The context.</param>
         /// <returns></returns>
-        public virtual Task IsActiveAsync(IsActiveContext context)
+        public virtual async Task IsActiveAsync(IsActiveContext context)
         {
             Logger.LogDebug("IsActive called from: {caller}", context.Caller);
 
-            var user = Users.FindBySubjectId(context.Subject.GetSubjectId());
+            var user = await Users.FindBySubjectId(context.Subject.GetSubjectId());
             context.IsActive = user?.IsActive == true;
-
-            return Task.CompletedTask;
         }
     }
 }
