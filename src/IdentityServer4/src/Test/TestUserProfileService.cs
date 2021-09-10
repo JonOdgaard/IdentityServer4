@@ -25,14 +25,14 @@ namespace IdentityServer4.Test
         /// <summary>
         /// The users
         /// </summary>
-        protected readonly AccountStore Users;
+        protected readonly IAccountStore Users;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestUserProfileService"/> class.
         /// </summary>
         /// <param name="users">The users.</param>
         /// <param name="logger">The logger.</param>
-        public TestUserProfileService(AccountStore users, ILogger<TestUserProfileService> logger)
+        public TestUserProfileService(IAccountStore users, ILogger<TestUserProfileService> logger)
         {
             Users = users;
             Logger = logger;

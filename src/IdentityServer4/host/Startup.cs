@@ -69,7 +69,6 @@ namespace IdentityServerHost
                 .AddExtensionGrantValidator<Extensions.NoSubjectExtensionGrantValidator>()
                 .AddJwtBearerClientAuthentication()
                 .AddAppAuthRedirectUriValidator()
-                // .AddTestUsers(TestUsers.Users)
                 .AddTestUsers()
                 .AddProfileService<HostProfileService>()
                 .AddCustomTokenRequestValidator<ParameterizedScopeTokenRequestValidator>()

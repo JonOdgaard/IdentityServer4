@@ -16,7 +16,7 @@ namespace IdentityServer4.Test
     /// <seealso cref="IdentityServer4.Validation.IResourceOwnerPasswordValidator" />
     public class TestUserResourceOwnerPasswordValidator : IResourceOwnerPasswordValidator
     {
-        private readonly AccountStore _users;
+        private readonly IAccountStore _users;
         private readonly ISystemClock _clock;
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace IdentityServer4.Test
         /// </summary>
         /// <param name="users">The users.</param>
         /// <param name="clock">The clock.</param>
-        public TestUserResourceOwnerPasswordValidator(AccountStore users, ISystemClock clock)
+        public TestUserResourceOwnerPasswordValidator(IAccountStore users, ISystemClock clock)
         {
             _users = users;
             _clock = clock;

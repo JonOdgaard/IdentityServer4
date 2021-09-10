@@ -33,7 +33,7 @@ namespace IdentityServerHost.Quickstart.UI
             IClientStore clientStore,
             IEventService events,
             ILogger<ExternalController> logger,
-            AccountStore accountStore)
+            IAccountStore accountStore)
         {
             _interaction = interaction;
             _clientStore = clientStore;

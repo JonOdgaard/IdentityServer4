@@ -21,6 +21,7 @@ namespace IdentityServer4.Test
         Task<FirstAgendaAccount> FindByUsername(string modelUsername);
         Task<FirstAgendaAccount> FindByExternalProvider(string provider, string providerUserId);
         Task<FirstAgendaAccount> AutoProvisionUser(string rProvider, string rProviderUserId, List<Claim> toList);
+        Task<FirstAgendaAccount> FindBySubjectId(string getSubjectId);
     }
     
     public class AccountStore : IAccountStore
