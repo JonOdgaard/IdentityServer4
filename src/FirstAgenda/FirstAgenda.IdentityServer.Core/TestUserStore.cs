@@ -73,7 +73,7 @@ namespace IdentityServer4.Test
         /// <returns></returns>
         public async Task<FirstAgendaAccount> FindByUsername(string username)
         {
-            return await _context.Accounts.SingleOrDefaultAsync(x => x.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+            return await _context.Accounts.SingleOrDefaultAsync(x => x.Username.ToLower() == username.ToLower());
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace IdentityServer4.Test
                 Username = name,
                 ProviderName = provider,
                 ProviderSubjectId = userId,
-                Claims = filtered
+                // Claims = filtered
             };
 
             // add user to in-memory store

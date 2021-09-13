@@ -147,7 +147,7 @@ namespace IdentityServer4.Test
                 Username = name,
                 ProviderName = provider,
                 ProviderSubjectId = userId,
-                Claims = filtered
+                // Claims = filtered
             };
 
             // add user to in-memory store

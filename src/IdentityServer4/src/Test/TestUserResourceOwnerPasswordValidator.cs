@@ -6,6 +6,8 @@ using IdentityModel;
 using IdentityServer4.Validation;
 using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 
 namespace IdentityServer4.Test
@@ -43,7 +45,8 @@ namespace IdentityServer4.Test
                 context.Result = new GrantValidationResult(
                     user.SubjectId ?? throw new ArgumentException("Subject ID not set", nameof(user.SubjectId)), 
                     OidcConstants.AuthenticationMethods.Password, _clock.UtcNow.UtcDateTime, 
-                    user.Claims);
+                    new List<Claim>());
+                    // user.Claims);
             }
         }
     }

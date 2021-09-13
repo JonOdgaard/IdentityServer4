@@ -47,6 +47,8 @@ namespace IdentityServerHost
             services.AddDbContext<FirstAgendaIdentityStoreContext>(options =>
                 options.UseSqlServer("Data Source=localhost;Initial Catalog=local_firstagenda;User Id=sa;Password=S0me_Passw0rd;"));
             
+                IdentityModelEventSource.ShowPII = true;  // TODO: Only set if dev
+            
             var builder = services.AddIdentityServer(options =>
                 {
                     options.Events.RaiseSuccessEvents = true;

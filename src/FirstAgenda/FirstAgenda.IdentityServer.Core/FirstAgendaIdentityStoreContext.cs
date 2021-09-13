@@ -16,7 +16,8 @@ namespace FirstAgenda.IdentityServer.Core
         {
             modelBuilder
                 .Entity<FirstAgendaAccount>()
-                .ToTable("Accounts")
+                .ToTable("OffentligBruger")
+                .HasKey(k => k.Id)
                 ;
         }
     }

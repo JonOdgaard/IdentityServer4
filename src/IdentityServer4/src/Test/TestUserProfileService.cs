@@ -52,7 +52,7 @@ namespace IdentityServer4.Test
                 var user = await Users.FindBySubjectId(context.Subject.GetSubjectId());
                 if (user != null)
                 {
-                    context.AddRequestedClaims(user.Claims);
+                    // context.AddRequestedClaims(user.Claims);
                 }
             }
 
