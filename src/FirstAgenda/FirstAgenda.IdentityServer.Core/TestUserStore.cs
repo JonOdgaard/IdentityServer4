@@ -8,6 +8,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using FirstAgenda.IdentityServer.Core;
 using FirstAgenda.IdentityServer.Core.Models;
@@ -45,15 +47,34 @@ namespace IdentityServer4.Test
             
             if (user != null)
             {
-                if (string.IsNullOrWhiteSpace(user.Password) && string.IsNullOrWhiteSpace(password))
-                {
-                    return true;
-                }
+                var hashedIncomingPassword = GetHashedPassword(password, user.Salt);
                 
-                return user.Password.Equals(password);
+                return user.Password.Equals(hashedIncomingPassword);
             }
             
             return false;
+        }
+        
+        private const string SystemSalt = ";2m_æp2AIEN92j,aq!8(/2.LIKDNkvvemnv,.ÅW22c1jhjaik";
+        private const string CodeHash = "jklg@sbjk//(bk#j!hjkhjdfk##!!hjkdjkhjfhjsjhjjhh3hhj7782mkjnk2j34JJJk2kkk3K";
+
+        public string GetHashedPassword(string password, string salt)
+        {
+            return Hash(SystemSalt + CodeHash + password, salt);
+        }
+        
+        private string Hash(string value, string salt)
+        {
+            var i = salt.IndexOf('.');
+            var iters = int.Parse(salt.Substring(0, i), System.Globalization.NumberStyles.HexNumber);
+            salt = salt.Substring(i + 1);
+
+            using (var pbkdf2 = new Rfc2898DeriveBytes(Encoding.UTF8.GetBytes(value), Convert.FromBase64String(salt), iters))
+            {
+                var key = pbkdf2.GetBytes(24);
+
+                return Convert.ToBase64String(key);
+            }
         }
 
         /// <summary>

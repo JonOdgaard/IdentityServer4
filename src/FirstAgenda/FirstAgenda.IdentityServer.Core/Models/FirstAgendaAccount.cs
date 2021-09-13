@@ -52,6 +52,9 @@ namespace FirstAgenda.IdentityServer.Core.Models
         [Column("Spaeret")]
         public bool IsActive { get; set; } = true;
 
+        [Column("Salt")]
+        public string Salt { get; set; }
+
         //
         // /// <summary>
         // /// Gets or sets the claims.
