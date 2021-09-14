@@ -21,8 +21,10 @@ using FirstAgenda.IdentityServer.Core;
 using IdentityServer4.Test;
 using IdentityServerHost.Extensions;
 using Microsoft.AspNetCore.Authentication.Certificate;
+using Microsoft.AspNetCore.Authentication.WsFederation;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens.Saml;
 
 namespace IdentityServerHost
 {
@@ -94,6 +96,32 @@ namespace IdentityServerHost
                 {
                     options.AllowedCertificateTypes = CertificateTypes.All;
                     options.RevocationMode = X509RevocationMode.NoCheck;
+                }).AddWsFederation(options =>
+                {
+                    options.MetadataAddress = "https://adfs1.firstagenda.com/FederationMetadata/2007-06/FederationMetadata.xml";
+                    options.RequireHttpsMetadata = true;
+                    options.TokenValidationParameters.
+
+                    options.Wtrealm = "https://localhost:5001/";
+
+                    options.CallbackPath = "/adfs/callback";
+                    options.SkipUnrecognizedRequests = true;
+                    options.Events = new WsFederationEvents()
+                    {
+OnSecurityTokenReceived = OnSecurityTokenReceived,
+OnSecurityTokenValidated = OnSecurityTokenValidated
+                    };
+                    // options.SecurityTokenHandlers.Remove(
+                    //     options.SecurityTokenHandlers.Single(d => d is SamlSecurityTokenHandler));
+                    //
+                    // options.SecurityTokenHandlers.Add(new MySamlSecurityTokenHandler()
+                    // {
+                    //     
+                    // });
+                    
+                    options.SecurityTokenHandlers.Add(new EncryptedSecurityTokenHandler());
+                    
+                    options.SecurityTokenHandlers.Add(new EncrySecu);
                 });
             
             services.AddCertificateForwardingForNginx();
@@ -104,6 +132,17 @@ namespace IdentityServerHost
 
                 return Task.FromResult(principal);
             });
+        }
+
+        private Task OnSecurityTokenValidated(SecurityTokenValidatedContext arg)
+        {
+            return Task.CompletedTask;
+        }
+
+        private Task OnSecurityTokenReceived(SecurityTokenReceivedContext arg)
+        {
+
+            return Task.CompletedTask;
         }
 
         public void Configure(IApplicationBuilder app)
@@ -157,9 +196,14 @@ namespace IdentityServerHost
                 KeyId = CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)
             };
 
-            return builder.AddSigningCredential(
-                key,
-                IdentityServerConstants.ECDsaSigningAlgorithm.ES256);
+            // var store = new X509Store(StoreLocation.LocalMachine);
+            // var certs = store.Certificates.Find(X509FindType.FindByThumbprint,
+            //     "c38af9dcfc03a573d0c83355e08dc5b13d18590a", false);
+            // var cert = certs[0];
+            //
+            // builder.AddSigningCredential(cert);
+            
+            return builder.AddSigningCredential(key, IdentityServerConstants.ECDsaSigningAlgorithm.ES256);
         }
 
         // use this for persisted grants store

@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.WsFederation;
 
 namespace IdentityServerHost.Quickstart.UI
 {
@@ -106,6 +107,15 @@ namespace IdentityServerHost.Quickstart.UI
 
             if (ModelState.IsValid)
             {
+                
+                var challengeAuthenticationProperties = new AuthenticationProperties
+                {
+                    RedirectUri = "/wsfed/1234"
+                };
+
+                return Challenge(challengeAuthenticationProperties, WsFederationDefaults.AuthenticationScheme);
+                
+                
                 // validate username/password against in-memory store
                 if (await _accountStore.ValidateCredentials(model.Username, model.Password))
                 {
