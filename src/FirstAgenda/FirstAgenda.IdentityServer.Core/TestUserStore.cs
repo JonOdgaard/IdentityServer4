@@ -173,6 +173,17 @@ namespace IdentityServer4.Test
                 Username = name,
                 ProviderName = provider,
                 ProviderSubjectId = userId,
+                Password = "some",
+                Salt = "some",
+                IsActive = true,
+                LastPasswordChangeDateUtc = DateTimeOffset.UtcNow,
+                CreatedDateUtc = DateTimeOffset.UtcNow,
+                Uid = Guid.NewGuid(),
+                SkalSkiftePassword = false,
+                AntalFejlForsoeg = 0,
+                LanguageID =1,
+                TimeZoneId = "",
+                HarBillede = false
                 // Claims = filtered
             };
 

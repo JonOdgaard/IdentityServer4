@@ -73,6 +73,13 @@ namespace IdentityServer4.Hosting
         {
             _logger.LogDebug("Augmenting SignInContext");
 
+            var claimsIdentity = principal.Identities.First();
+            var jwtSubjectClaim = principal.FindFirst(JwtClaimTypes.Subject);
+            var wsEmailClaim = principal.FindFirst(ClaimTypes.Email);
+
+            if (jwtSubjectClaim == null && wsEmailClaim != null)
+                claimsIdentity.AddClaim(new Claim(JwtClaimTypes.Subject, wsEmailClaim.Value));
+            
             AssertRequiredClaims(principal);
             AugmentMissingClaims(principal, _clock.UtcNow.UtcDateTime);
         }

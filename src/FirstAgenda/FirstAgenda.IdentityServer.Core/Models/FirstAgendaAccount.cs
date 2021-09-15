@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Claims;
@@ -37,13 +38,13 @@ namespace FirstAgenda.IdentityServer.Core.Models
         /// <summary>
         /// Gets or sets the provider name.
         /// </summary>
-        [NotMapped]
+        [Column("IdsExternalProviderName")]
         public string ProviderName { get; set; }
 
         /// <summary>
         /// Gets or sets the provider subject identifier.
         /// </summary>
-        [NotMapped]
+        [Column("IdsExternalProviderSubjectId")]
         public string ProviderSubjectId { get; set; }
 
         /// <summary>
@@ -54,6 +55,16 @@ namespace FirstAgenda.IdentityServer.Core.Models
 
         [Column("Salt")]
         public string Salt { get; set; }
+
+        public DateTimeOffset LastPasswordChangeDateUtc { get; set; }
+
+        public DateTimeOffset CreatedDateUtc { get; set; }
+        public Guid Uid { get; set; }
+        public bool SkalSkiftePassword { get; set; }
+        public int AntalFejlForsoeg { get; set; }
+        public int LanguageID { get; set; }
+        public string TimeZoneId { get; set; }
+        public bool HarBillede { get; set; }
 
         //
         // /// <summary>
