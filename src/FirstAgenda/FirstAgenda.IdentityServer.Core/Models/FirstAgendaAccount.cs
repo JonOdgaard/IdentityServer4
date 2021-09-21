@@ -13,8 +13,6 @@ namespace FirstAgenda.IdentityServer.Core.Models
         [MaxLength(200)]
         public string SubjectId { get; set; }
 
-        [MaxLength(300)]
-        public string UserFullName { get; set; }
         
         [MaxLength(100)]
         public string LoginId { get; set; }

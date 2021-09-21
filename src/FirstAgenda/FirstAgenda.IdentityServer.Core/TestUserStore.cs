@@ -22,8 +22,8 @@ namespace IdentityServer4.Test
         public Task<bool> ValidateCredentials(string modelUsername, string modelPassword);
         Task<FirstAgendaAccount> FindByUsername(string loginId);
         Task<FirstAgendaAccount> FindByExternalProvider(string externalProvider, string externalProviderSubjectId);
-        Task<FirstAgendaAccount> AutoProvisionUser(string rProvider, string rProviderUserId, List<Claim> toList);
-        Task<FirstAgendaAccount> FindBySubjectId(string getSubjectId);
+        Task<FirstAgendaAccount> AutoProvisionUserFromExternalProvider(string externalProviderName, string externalProviderUserId, List<Claim> claims);
+        Task<FirstAgendaAccount> FindBySubjectId(string subjectId);
     }
     
     public class AccountStore : IAccountStore
@@ -115,11 +115,11 @@ namespace IdentityServer4.Test
         /// <summary>
         /// Automatically provisions a user.
         /// </summary>
-        /// <param name="provider">The provider.</param>
-        /// <param name="userId">The user identifier.</param>
+        /// <param name="externalProviderName">The provider.</param>
+        /// <param name="externalProviderUserId">The user identifier.</param>
         /// <param name="claims">The claims.</param>
         /// <returns></returns>
-        public async Task<FirstAgendaAccount> AutoProvisionUser(string provider, string userId, List<Claim> claims)
+        public async Task<FirstAgendaAccount> AutoProvisionUserFromExternalProvider(string externalProviderName, string externalProviderUserId, List<Claim> claims)
         {
             // create a list of claims that we want to transfer into our store
             var filtered = new List<Claim>();
@@ -173,8 +173,8 @@ namespace IdentityServer4.Test
             {
                 SubjectId = sub,
                 UserFullName = userFullName,
-                ExternalProviderName = provider,
-                ExternalProviderSubjectId = userId,
+                ExternalProviderName = externalProviderName,
+                ExternalProviderSubjectId = externalProviderUserId,
                 Password = "some",
                 Salt = "some",
                 IsActive = true,

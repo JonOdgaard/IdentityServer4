@@ -92,8 +92,8 @@ namespace IdentityServerHost.Quickstart.UI
 
             // lookup our user and external provider info
             var findUserFromExternalProviderResult = await FindUserFromExternalProvider(authenticateResult);
-            var firstAgendaAccount = findUserFromExternalProviderResult.user;
-            if (findUserFromExternalProviderResult.user == null)
+            var firstAgendaAccount = findUserFromExternalProviderResult.FirstAgendaAccount;
+            if (findUserFromExternalProviderResult.FirstAgendaAccount == null)
             {
                 // this might be where you might initiate a custom workflow for user registration
                 // in this sample we don't show how that would be done, as our sample implementation
@@ -111,8 +111,8 @@ namespace IdentityServerHost.Quickstart.UI
             // issue authentication cookie for user
             var identityServerUser = new IdentityServerUser(firstAgendaAccount.SubjectId)
             {
-                DisplayName = firstAgendaAccount.UserFullName,
-                IdentityProvider = findUserFromExternalProviderResult.provider,
+                DisplayName = firstAgendaAccount.Profile.UserFullName,
+                IdentityProvider = findUserFromExternalProviderResult.ExternalProviderName,
                 AdditionalClaims = additionalLocalClaims
             };
 
@@ -126,8 +126,8 @@ namespace IdentityServerHost.Quickstart.UI
 
             // check if external login is in the context of an OIDC request
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-            await _events.RaiseAsync(new UserLoginSuccessEvent(findUserFromExternalProviderResult.provider, findUserFromExternalProviderResult.providerUserId, firstAgendaAccount.SubjectId,
-                firstAgendaAccount.UserFullName,
+            await _events.RaiseAsync(new UserLoginSuccessEvent(findUserFromExternalProviderResult.ExternalProviderName, findUserFromExternalProviderResult.ExternalProviderUserId, firstAgendaAccount.SubjectId,
+                firstAgendaAccount.Profile.UserFullName,
                 true, context?.Client.ClientId));
 
             if (context != null)
@@ -143,28 +143,28 @@ namespace IdentityServerHost.Quickstart.UI
             return Redirect(returnUrl);
         }
 
-        private class R
+        private class FindUserFromExternalProviderResult
         {
-            public FirstAgendaAccount user;
-            public string provider;
-            public string providerUserId;
-            public IEnumerable<Claim> claims;
+            public FirstAgendaAccount FirstAgendaAccount;
+            public string ExternalProviderName;
+            public string ExternalProviderUserId;
+            public IEnumerable<Claim> ExternalUserClaims;
         }
 
-        private async Task<R> FindUserFromExternalProvider(AuthenticateResult result)
+        private async Task<FindUserFromExternalProviderResult> FindUserFromExternalProvider(AuthenticateResult result)
         {
-            var externalUser = result.Principal;
+            var externalClaimsPrincipal = result.Principal;
 
             // try to determine the unique id of the external user (issued by the provider)
             // the most common claim type for that are the sub claim and the NameIdentifier
             // depending on the external provider, some other claim type might be used
-            var userIdClaim = externalUser.FindFirst(ClaimTypes.Email) ?? 
-                              externalUser.FindFirst(JwtClaimTypes.Subject) ??
-                              externalUser.FindFirst(ClaimTypes.NameIdentifier) ??
+            var userIdClaim = externalClaimsPrincipal.FindFirst(ClaimTypes.Email) ?? 
+                              externalClaimsPrincipal.FindFirst(JwtClaimTypes.Subject) ??
+                              externalClaimsPrincipal.FindFirst(ClaimTypes.NameIdentifier) ??
                               throw new Exception("Unknown userid");
 
             // remove the user id claim so we don't include it as an extra claim if/when we provision the user
-            var claims = externalUser.Claims.ToList();
+            var claims = externalClaimsPrincipal.Claims.ToList();
             claims.Remove(userIdClaim);
 
             var provider = result.Properties.Items["scheme"];
@@ -173,36 +173,36 @@ namespace IdentityServerHost.Quickstart.UI
             // find external user
             var user = await _accountStore.FindByExternalProvider(provider, providerUserId);
 
-            return new R()
+            return new FindUserFromExternalProviderResult()
             {
-                user = user,
-                provider = provider,
-                providerUserId = providerUserId,
-                claims = claims
+                FirstAgendaAccount = user,
+                ExternalProviderName = provider,
+                ExternalProviderUserId = providerUserId,
+                ExternalUserClaims = claims
             };
         }
 
-        private async Task<FirstAgendaAccount> AutoProvisionNewExternalUser(R r)
+        private async Task<FirstAgendaAccount> AutoProvisionNewExternalUser(FindUserFromExternalProviderResult findUserFromExternalProviderResult)
         {
-            var user = await _accountStore.AutoProvisionUser(r.provider, r.providerUserId, r.claims.ToList());
+            var user = await _accountStore.AutoProvisionUserFromExternalProvider(findUserFromExternalProviderResult.ExternalProviderName, findUserFromExternalProviderResult.ExternalProviderUserId, findUserFromExternalProviderResult.ExternalUserClaims.ToList());
 
             return user;
         }
 
         // if the external login is OIDC-based, there are certain things we need to preserve to make logout work
         // this will be different for WS-Fed, SAML2p or other protocols
-        private void ProcessLoginCallback(AuthenticateResult externalResult, List<Claim> localClaims, AuthenticationProperties localSignInProps)
+        private void ProcessLoginCallback(AuthenticateResult externalAuthenticateResult, List<Claim> localClaims, AuthenticationProperties localSignInProps)
         {
             // if the external system sent a session id claim, copy it over
             // so we can use it for single sign-out
-            var sid = externalResult.Principal.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.SessionId);
+            var sid = externalAuthenticateResult.Principal.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.SessionId);
             if (sid != null)
             {
                 localClaims.Add(new Claim(JwtClaimTypes.SessionId, sid.Value));
             }
 
             // if the external provider issued an id_token, we'll keep it for signout
-            var idToken = externalResult.Properties.GetTokenValue("id_token");
+            var idToken = externalAuthenticateResult.Properties.GetTokenValue("id_token");
             if (idToken != null)
             {
                 localSignInProps.StoreTokens(new[] { new AuthenticationToken { Name = "id_token", Value = idToken } });

@@ -4,14 +4,16 @@ using FirstAgenda.IdentityServer.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FirstAgenda.IdentityServer.Core.Migrations
 {
     [DbContext(typeof(FirstAgendaIdentityStoreContext))]
-    partial class FirstAgendaIdentityStoreContextModelSnapshot : ModelSnapshot
+    [Migration("20210921110923_Initial2")]
+    partial class Initial2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
