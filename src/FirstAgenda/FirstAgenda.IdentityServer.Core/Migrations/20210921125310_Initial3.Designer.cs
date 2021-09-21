@@ -4,14 +4,16 @@ using FirstAgenda.IdentityServer.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FirstAgenda.IdentityServer.Core.Migrations
 {
     [DbContext(typeof(FirstAgendaIdentityStoreContext))]
-    partial class FirstAgendaIdentityStoreContextModelSnapshot : ModelSnapshot
+    [Migration("20210921125310_Initial3")]
+    partial class Initial3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,20 +80,17 @@ namespace FirstAgenda.IdentityServer.Core.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<DateTimeOffset?>("LastPasswordChangeDateUtc")
+                    b.Property<DateTimeOffset>("LastPasswordChangeDateUtc")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("LoginId")
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
-                    b.Property<bool>("MustUseTwoFactorAuthentication")
+                    b.Property<bool>("MustChangedPassword")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("PasswordExpired")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("PasswordHash")
+                    b.Property<string>("Password")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ProfileId")

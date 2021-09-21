@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FirstAgenda.IdentityServer.Core;
 using Microsoft.AspNetCore.Authentication.WsFederation;
 
 namespace IdentityServerHost.Quickstart.UI
@@ -116,8 +117,8 @@ namespace IdentityServerHost.Quickstart.UI
                 
                 if (await _accountStore.ValidateCredentials(model.Username, model.Password))
                 {
-                    var user = await _accountStore.FindByUsername(model.Username);
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserFullName, user.SubjectId, user.UserFullName, clientId: context?.Client.ClientId));
+                    var user = await _accountStore.FindByUserLoginId(model.Username);
+                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.Profile.UserFullName, user.SubjectId, user.Profile.UserFullName, clientId: context?.Client.ClientId));
 
                     // only set explicit expiration here if user chooses "remember me". 
                     // otherwise we rely upon expiration configured in cookie middleware.
@@ -134,7 +135,7 @@ namespace IdentityServerHost.Quickstart.UI
                     // issue authentication cookie with subject ID and username
                     var isuser = new IdentityServerUser(user.SubjectId)
                     {
-                        DisplayName = user.UserFullName
+                        DisplayName = user.Profile.UserFullName
                     };
 
                     await HttpContext.SignInAsync(isuser, props);

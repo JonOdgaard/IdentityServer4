@@ -2,25 +2,24 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityModel;
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using FirstAgenda.IdentityServer.Core;
 using FirstAgenda.IdentityServer.Core.Models;
+using IdentityModel;
 using Microsoft.EntityFrameworkCore;
 
-namespace IdentityServer4.Test
+namespace FirstAgenda.IdentityServer.Core
 {
     public interface IAccountStore
     {
         public Task<bool> ValidateCredentials(string modelUsername, string modelPassword);
-        Task<FirstAgendaAccount> FindByUsername(string loginId);
+        Task<FirstAgendaAccount> FindByUserLoginId(string loginId);
         Task<FirstAgendaAccount> FindByExternalProvider(string externalProvider, string externalProviderSubjectId);
         Task<FirstAgendaAccount> AutoProvisionUserFromExternalProvider(string externalProviderName, string externalProviderUserId, List<Claim> claims);
         Task<FirstAgendaAccount> FindBySubjectId(string subjectId);
@@ -35,21 +34,15 @@ namespace IdentityServer4.Test
             _context = context;
         }
 
-        /// <summary>
-        /// Validates the credentials.
-        /// </summary>
-        /// <param name="username">The username.</param>
-        /// <param name="password">The password.</param>
-        /// <returns></returns>
         public async Task<bool> ValidateCredentials(string username, string password)
         {
-            var user = await FindByUsername(username);
+            var user = await FindByUserLoginId(username);
             
             if (user != null)
             {
                 var hashedIncomingPassword = GetHashedPassword(password, user.Salt);
                 
-                return user.Password.Equals(hashedIncomingPassword);
+                return user.PasswordHash.Equals(hashedIncomingPassword);
             }
             
             return false;
@@ -77,34 +70,18 @@ namespace IdentityServer4.Test
             }
         }
 
-        /// <summary>
-        /// Finds the user by subject identifier.
-        /// </summary>
-        /// <param name="subjectId">The subject identifier.</param>
-        /// <returns></returns>
         public async Task<FirstAgendaAccount> FindBySubjectId(string subjectId)
         {
             return await _context.Accounts.SingleOrDefaultAsync(a => a.SubjectId == subjectId);
         }
 
-        /// <summary>
-        /// Finds the user by username.
-        /// </summary>
-        /// <param name="loginId">The username.</param>
-        /// <returns></returns>
-        public async Task<FirstAgendaAccount> FindByUsername(string loginId)
+        public async Task<FirstAgendaAccount> FindByUserLoginId(string loginId)
         {
             var loginIdLowered = loginId.ToLower();
             
             return await _context.Accounts.SingleOrDefaultAsync(x => x.LoginId == loginIdLowered);
         }
 
-        /// <summary>
-        /// Finds the user by external provider.
-        /// </summary>
-        /// <param name="externalProvider">The provider.</param>
-        /// <param name="externalProviderSubjectId">The user identifier.</param>
-        /// <returns></returns>
         public async Task<FirstAgendaAccount> FindByExternalProvider(string externalProvider, string externalProviderSubjectId)
         {
             return await _context.Accounts.FirstOrDefaultAsync(x =>
@@ -112,13 +89,6 @@ namespace IdentityServer4.Test
                 x.ExternalProviderSubjectId == externalProviderSubjectId);
         }
 
-        /// <summary>
-        /// Automatically provisions a user.
-        /// </summary>
-        /// <param name="externalProviderName">The provider.</param>
-        /// <param name="externalProviderUserId">The user identifier.</param>
-        /// <param name="claims">The claims.</param>
-        /// <returns></returns>
         public async Task<FirstAgendaAccount> AutoProvisionUserFromExternalProvider(string externalProviderName, string externalProviderUserId, List<Claim> claims)
         {
             // create a list of claims that we want to transfer into our store
@@ -172,17 +142,21 @@ namespace IdentityServer4.Test
             var user = new FirstAgendaAccount
             {
                 SubjectId = sub,
-                UserFullName = userFullName,
                 ExternalProviderName = externalProviderName,
                 ExternalProviderSubjectId = externalProviderUserId,
-                Password = "some",
+                PasswordHash = "some",
                 Salt = "some",
                 IsActive = true,
                 LastPasswordChangeDateUtc = DateTimeOffset.UtcNow,
                 CreatedDateUtc = DateTimeOffset.UtcNow,
                 Uid = Guid.NewGuid(),
-                MustChangedPassword = false,
+                PasswordExpired = false,
                 FailedLoginAttempts = 0,
+                Profile = new AccountProfile()
+                {
+                    UserFullName = userFullName,
+                    // ...
+                }
                 // Claims = filtered
             };
 

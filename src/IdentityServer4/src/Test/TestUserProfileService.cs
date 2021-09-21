@@ -8,6 +8,7 @@ using IdentityServer4.Services;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
+using FirstAgenda.IdentityServer.Core;
 
 namespace IdentityServer4.Test
 {
@@ -20,22 +21,22 @@ namespace IdentityServer4.Test
         /// <summary>
         /// The logger
         /// </summary>
-        protected readonly ILogger Logger;
+        protected readonly ILogger _logger;
         
         /// <summary>
         /// The users
         /// </summary>
-        protected readonly IAccountStore Users;
+        protected readonly IAccountStore _accountStore;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestUserProfileService"/> class.
         /// </summary>
-        /// <param name="users">The users.</param>
+        /// <param name="accountStore">The users.</param>
         /// <param name="logger">The logger.</param>
-        public TestUserProfileService(IAccountStore users, ILogger<TestUserProfileService> logger)
+        public TestUserProfileService(IAccountStore accountStore, ILogger<TestUserProfileService> logger)
         {
-            Users = users;
-            Logger = logger;
+            _accountStore = accountStore;
+            _logger = logger;
         }
 
         /// <summary>
@@ -45,18 +46,18 @@ namespace IdentityServer4.Test
         /// <returns></returns>
         public virtual async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
-            context.LogProfileRequest(Logger);
+            context.LogProfileRequest(_logger);
 
             if (context.RequestedClaimTypes.Any())
             {
-                var user = await Users.FindBySubjectId(context.Subject.GetSubjectId());
+                var user = await _accountStore.FindBySubjectId(context.Subject.GetSubjectId());
                 if (user != null)
                 {
                     // context.AddRequestedClaims(user.Claims);
                 }
             }
 
-            context.LogIssuedClaims(Logger);
+            context.LogIssuedClaims(_logger);
         }
 
         /// <summary>
@@ -67,9 +68,9 @@ namespace IdentityServer4.Test
         /// <returns></returns>
         public virtual async Task IsActiveAsync(IsActiveContext context)
         {
-            Logger.LogDebug("IsActive called from: {caller}", context.Caller);
+            _logger.LogDebug("IsActive called from: {caller}", context.Caller);
 
-            var user = await Users.FindBySubjectId(context.Subject.GetSubjectId());
+            var user = await _accountStore.FindBySubjectId(context.Subject.GetSubjectId());
             context.IsActive = user?.IsActive == true;
         }
     }

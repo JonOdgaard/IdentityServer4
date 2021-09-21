@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using FirstAgenda.IdentityServer.Core;
 using FirstAgenda.IdentityServer.Core.Models;
 
 namespace IdentityServerHost.Quickstart.UI
