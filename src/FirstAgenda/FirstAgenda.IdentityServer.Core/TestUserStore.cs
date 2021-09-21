@@ -94,7 +94,7 @@ namespace IdentityServer4.Test
         /// <returns></returns>
         public async Task<FirstAgendaAccount> FindByUsername(string username)
         {
-            return await _context.Accounts.SingleOrDefaultAsync(x => x.Username.ToLower() == username.ToLower());
+            return await _context.Accounts.SingleOrDefaultAsync(x => x.UserName.ToLower() == username.ToLower());
         }
 
         /// <summary>
@@ -106,8 +106,8 @@ namespace IdentityServer4.Test
         public async Task<FirstAgendaAccount> FindByExternalProvider(string provider, string userId)
         {
             return await _context.Accounts.FirstOrDefaultAsync(x =>
-                x.ProviderName == provider &&
-                x.ProviderSubjectId == userId);
+                x.ExternalProviderName == provider &&
+                x.ExternalProviderSubjectId == userId);
         }
 
         /// <summary>
@@ -170,20 +170,20 @@ namespace IdentityServer4.Test
             var user = new FirstAgendaAccount
             {
                 SubjectId = sub,
-                Username = name,
-                ProviderName = provider,
-                ProviderSubjectId = userId,
+                UserName = name,
+                ExternalProviderName = provider,
+                ExternalProviderSubjectId = userId,
                 Password = "some",
                 Salt = "some",
                 IsActive = true,
                 LastPasswordChangeDateUtc = DateTimeOffset.UtcNow,
                 CreatedDateUtc = DateTimeOffset.UtcNow,
                 Uid = Guid.NewGuid(),
-                SkalSkiftePassword = false,
-                AntalFejlForsoeg = 0,
-                LanguageID =1,
+                MustChangedPassword = false,
+                FailedLoginAttempts = 0,
+                LanguageId =1,
                 TimeZoneId = "",
-                HarBillede = false
+                HasProfilePicture = false
                 // Claims = filtered
             };
 

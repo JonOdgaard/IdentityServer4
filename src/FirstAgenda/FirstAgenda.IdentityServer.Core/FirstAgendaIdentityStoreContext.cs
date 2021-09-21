@@ -1,5 +1,4 @@
 ﻿using FirstAgenda.IdentityServer.Core.Models;
-using IdentityServer4.Test;
 using Microsoft.EntityFrameworkCore;
 
 namespace FirstAgenda.IdentityServer.Core
@@ -16,7 +15,7 @@ namespace FirstAgenda.IdentityServer.Core
         {
             modelBuilder
                 .Entity<FirstAgendaAccount>()
-                .ToTable("OffentligBruger")
+                .ToTable("Account")
                 .HasKey(k => k.Id)
                 ;
         }

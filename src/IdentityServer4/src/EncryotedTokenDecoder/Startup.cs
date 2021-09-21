@@ -79,7 +79,7 @@ namespace EncryotedTokenDecoder
             var firstECipher = cipherValues.First();
             var secondXencCipher = cipherValues.Skip(1).Take(1).Single();
 
-            var d = Decrypt2(cert, secondXencCipher);
+            var d = Decrypt2(cert, firstECipher);
 
             Console.WriteLine(d);
 
@@ -95,15 +95,45 @@ namespace EncryotedTokenDecoder
             // }
         }
 
+        private static byte[] ExtractIVAndDecrypt(
+            SymmetricAlgorithm algorithm,
+            byte[] cipherText,
+            int offset,
+            int count)
+        {
+            byte[] rgbIV = new byte[algorithm.BlockSize / 8];
+            if (cipherText.Length - offset < rgbIV.Length)
+                throw new ApplicationException(); // DiagnosticUtility.ExceptionUtility.ThrowHelperError((Exception) new InvalidOperationException(SR.GetString("ID6019", (object) (cipherText.Length - offset), (object) rgbIV.Length)));
+            Buffer.BlockCopy((Array) cipherText, offset, (Array) rgbIV, 0, rgbIV.Length);
+            algorithm.Padding = PaddingMode.ISO10126;
+            algorithm.Mode = CipherMode.CBC;
+            ICryptoTransform cryptoTransform = (ICryptoTransform) null;
+            try
+            {
+                cryptoTransform = algorithm.CreateDecryptor(algorithm.Key, rgbIV);
+                return cryptoTransform.TransformFinalBlock(cipherText, offset + rgbIV.Length, count - rgbIV.Length);
+            }
+            finally
+            {
+                cryptoTransform?.Dispose();
+            }
+        }
+        
         public static byte[] Decrypt2(X509Certificate2 cert, string encryptedString)
         {
             var encryptedData = Encoding.UTF8.GetBytes(encryptedString);
+            new X509AsymmetricSecurityKey(cert);
+            
+            var symmetricAlgorithm = SymmetricAlgorithm.Create("http://www.w3.org/2001/04/xmlenc#aes256-cbc");
 
-            var certRsaPrivateKey = cert.GetRSAPrivateKey();
-            var rsaCng = certRsaPrivateKey as RSACng;
-            var dec = rsaCng.Decrypt(encryptedData, RSAEncryptionPadding.OaepSHA256);
+            var x = ExtractIVAndDecrypt(symmetricAlgorithm, encryptedData, 0, encryptedData.Length);
+            
+            
+            // var certRsaPrivateKey = cert.GetRSAPrivateKey();
+            // var rsaCng = certRsaPrivateKey as RSACng;
+            // var dec = rsaCng.Decrypt(encryptedData, RSAEncryptionPadding.OaepSHA256);
 
-            return dec;
+            return x;
         }
 
         private static bool _optimalAsymmetricEncryptionPadding = false;

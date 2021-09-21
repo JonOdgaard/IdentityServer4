@@ -68,7 +68,7 @@ namespace IdentityServer4.Test
         /// <returns></returns>
         public FirstAgendaAccount FindByUsername(string username)
         {
-            return _users.FirstOrDefault(x => x.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+            return _users.FirstOrDefault(x => x.UserName.Equals(username, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -80,8 +80,8 @@ namespace IdentityServer4.Test
         public FirstAgendaAccount FindByExternalProvider(string provider, string userId)
         {
             return _users.FirstOrDefault(x =>
-                x.ProviderName == provider &&
-                x.ProviderSubjectId == userId);
+                x.ExternalProviderName == provider &&
+                x.ExternalProviderSubjectId == userId);
         }
 
         /// <summary>
@@ -144,9 +144,9 @@ namespace IdentityServer4.Test
             var user = new FirstAgendaAccount
             {
                 SubjectId = sub,
-                Username = name,
-                ProviderName = provider,
-                ProviderSubjectId = userId,
+                UserName = name,
+                ExternalProviderName = provider,
+                ExternalProviderSubjectId = userId,
                 // Claims = filtered
             };
 
