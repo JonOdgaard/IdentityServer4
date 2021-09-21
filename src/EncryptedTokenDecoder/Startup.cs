@@ -122,7 +122,6 @@ namespace EncryotedTokenDecoder
         public static byte[] Decrypt2(X509Certificate2 cert, string encryptedString)
         {
             var encryptedData = Encoding.UTF8.GetBytes(encryptedString);
-            new X509AsymmetricSecurityKey(cert);
             
             var symmetricAlgorithm = SymmetricAlgorithm.Create("http://www.w3.org/2001/04/xmlenc#aes256-cbc");
 

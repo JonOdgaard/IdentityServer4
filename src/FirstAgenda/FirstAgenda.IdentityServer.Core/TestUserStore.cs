@@ -20,8 +20,8 @@ namespace IdentityServer4.Test
     public interface IAccountStore
     {
         public Task<bool> ValidateCredentials(string modelUsername, string modelPassword);
-        Task<FirstAgendaAccount> FindByUsername(string modelUsername);
-        Task<FirstAgendaAccount> FindByExternalProvider(string provider, string providerUserId);
+        Task<FirstAgendaAccount> FindByUsername(string loginId);
+        Task<FirstAgendaAccount> FindByExternalProvider(string externalProvider, string externalProviderSubjectId);
         Task<FirstAgendaAccount> AutoProvisionUser(string rProvider, string rProviderUserId, List<Claim> toList);
         Task<FirstAgendaAccount> FindBySubjectId(string getSubjectId);
     }
@@ -90,24 +90,26 @@ namespace IdentityServer4.Test
         /// <summary>
         /// Finds the user by username.
         /// </summary>
-        /// <param name="username">The username.</param>
+        /// <param name="loginId">The username.</param>
         /// <returns></returns>
-        public async Task<FirstAgendaAccount> FindByUsername(string username)
+        public async Task<FirstAgendaAccount> FindByUsername(string loginId)
         {
-            return await _context.Accounts.SingleOrDefaultAsync(x => x.UserName.ToLower() == username.ToLower());
+            var loginIdLowered = loginId.ToLower();
+            
+            return await _context.Accounts.SingleOrDefaultAsync(x => x.LoginId == loginIdLowered);
         }
 
         /// <summary>
         /// Finds the user by external provider.
         /// </summary>
-        /// <param name="provider">The provider.</param>
-        /// <param name="userId">The user identifier.</param>
+        /// <param name="externalProvider">The provider.</param>
+        /// <param name="externalProviderSubjectId">The user identifier.</param>
         /// <returns></returns>
-        public async Task<FirstAgendaAccount> FindByExternalProvider(string provider, string userId)
+        public async Task<FirstAgendaAccount> FindByExternalProvider(string externalProvider, string externalProviderSubjectId)
         {
             return await _context.Accounts.FirstOrDefaultAsync(x =>
-                x.ExternalProviderName == provider &&
-                x.ExternalProviderSubjectId == userId);
+                x.ExternalProviderName == externalProvider &&
+                x.ExternalProviderSubjectId == externalProviderSubjectId);
         }
 
         /// <summary>
@@ -164,13 +166,13 @@ namespace IdentityServer4.Test
             var sub = CryptoRandom.CreateUniqueId(format: CryptoRandom.OutputFormat.Hex);
 
             // check if a display name is available, otherwise fallback to subject id
-            var name = filtered.FirstOrDefault(c => c.Type == JwtClaimTypes.Name)?.Value ?? sub;
+            var userFullName = filtered.FirstOrDefault(c => c.Type == JwtClaimTypes.Name)?.Value ?? sub;
 
             // create new user
             var user = new FirstAgendaAccount
             {
                 SubjectId = sub,
-                UserName = name,
+                UserFullName = userFullName,
                 ExternalProviderName = provider,
                 ExternalProviderSubjectId = userId,
                 Password = "some",
@@ -181,9 +183,6 @@ namespace IdentityServer4.Test
                 Uid = Guid.NewGuid(),
                 MustChangedPassword = false,
                 FailedLoginAttempts = 0,
-                LanguageId =1,
-                TimeZoneId = "",
-                HasProfilePicture = false
                 // Claims = filtered
             };
 

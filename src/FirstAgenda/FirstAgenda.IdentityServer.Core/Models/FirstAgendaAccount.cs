@@ -6,13 +6,18 @@ namespace FirstAgenda.IdentityServer.Core.Models
 {
     public class FirstAgendaAccount
     {
+        public FirstAgendaAccount() { }
+        
         public int Id { get; set; }
         
         [MaxLength(200)]
         public string SubjectId { get; set; }
 
+        [MaxLength(300)]
+        public string UserFullName { get; set; }
+        
         [MaxLength(100)]
-        public string UserName { get; set; }
+        public string LoginId { get; set; }
 
         public string Password { get; set; }
 
@@ -22,7 +27,7 @@ namespace FirstAgenda.IdentityServer.Core.Models
         [MaxLength(100)]
         public string ExternalProviderSubjectId { get; set; }
 
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; }
 
         [MaxLength(100)]
         public string Salt { get; set; }
@@ -33,9 +38,8 @@ namespace FirstAgenda.IdentityServer.Core.Models
         public Guid Uid { get; set; }
         public bool MustChangedPassword { get; set; }
         public int FailedLoginAttempts { get; set; }
-        public int LanguageId { get; set; }
-        [MaxLength(10)]
-        public string TimeZoneId { get; set; }
-        public bool HasProfilePicture { get; set; }
+
+        public AccountProfile Profile { get; set; }
+    
     }
 }

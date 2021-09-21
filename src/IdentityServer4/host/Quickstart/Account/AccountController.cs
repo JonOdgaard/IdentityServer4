@@ -107,7 +107,6 @@ namespace IdentityServerHost.Quickstart.UI
 
             if (ModelState.IsValid)
             {
-                
                 var challengeAuthenticationProperties = new AuthenticationProperties
                 {
                     RedirectUri = "/wsfed/1234"
@@ -115,12 +114,10 @@ namespace IdentityServerHost.Quickstart.UI
 
                 return Challenge(challengeAuthenticationProperties, WsFederationDefaults.AuthenticationScheme);
                 
-                
-                // validate username/password against in-memory store
                 if (await _accountStore.ValidateCredentials(model.Username, model.Password))
                 {
                     var user = await _accountStore.FindByUsername(model.Username);
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.SubjectId, user.UserName, clientId: context?.Client.ClientId));
+                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserFullName, user.SubjectId, user.UserFullName, clientId: context?.Client.ClientId));
 
                     // only set explicit expiration here if user chooses "remember me". 
                     // otherwise we rely upon expiration configured in cookie middleware.
@@ -137,7 +134,7 @@ namespace IdentityServerHost.Quickstart.UI
                     // issue authentication cookie with subject ID and username
                     var isuser = new IdentityServerUser(user.SubjectId)
                     {
-                        DisplayName = user.UserName
+                        DisplayName = user.UserFullName
                     };
 
                     await HttpContext.SignInAsync(isuser, props);

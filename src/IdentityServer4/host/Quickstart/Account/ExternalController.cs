@@ -111,7 +111,7 @@ namespace IdentityServerHost.Quickstart.UI
             // issue authentication cookie for user
             var identityServerUser = new IdentityServerUser(firstAgendaAccount.SubjectId)
             {
-                DisplayName = firstAgendaAccount.UserName,
+                DisplayName = firstAgendaAccount.UserFullName,
                 IdentityProvider = findUserFromExternalProviderResult.provider,
                 AdditionalClaims = additionalLocalClaims
             };
@@ -127,7 +127,7 @@ namespace IdentityServerHost.Quickstart.UI
             // check if external login is in the context of an OIDC request
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
             await _events.RaiseAsync(new UserLoginSuccessEvent(findUserFromExternalProviderResult.provider, findUserFromExternalProviderResult.providerUserId, firstAgendaAccount.SubjectId,
-                firstAgendaAccount.UserName,
+                firstAgendaAccount.UserFullName,
                 true, context?.Client.ClientId));
 
             if (context != null)
