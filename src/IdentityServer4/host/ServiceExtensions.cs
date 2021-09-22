@@ -103,7 +103,7 @@ namespace IdentityServerHost
                 {
                     options.AllowedCertificateTypes = CertificateTypes.All;
                     options.RevocationMode = X509RevocationMode.NoCheck;
-                }).AddWsFederation("QaAdsfs1", "QA Adfs 1", options =>
+                }).AddWsFederation("QaAdfs1", "QA Adfs 1", options =>
                 {
                     // options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                     options.SignOutScheme = IdentityServerConstants.SignoutScheme;

@@ -22,7 +22,7 @@ namespace FirstAgenda.IdentityServer.Core
             if (string.IsNullOrEmpty(loginId)) return null;
             if (!loginId.Contains('@')) return null;
 
-            var domain = loginId.Substring(loginId.IndexOf('@'));
+            var domain = loginId.Substring(loginId.IndexOf('@')+1);
             if (string.IsNullOrEmpty(domain)) return null;
 
             var hr = await _dbContext.ExternalProviders.SingleOrDefaultAsync(hr => hr.HomeRealm == domain);
