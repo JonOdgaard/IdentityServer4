@@ -110,10 +110,10 @@ namespace IdentityServerHost.Quickstart.UI
             {
                 var challengeAuthenticationProperties = new AuthenticationProperties
                 {
-                    RedirectUri = "/wsfed/1234"
+                    // RedirectUri = "/wsfed/1234"
                 };
 
-                return Challenge(challengeAuthenticationProperties, WsFederationDefaults.AuthenticationScheme);
+                return Challenge(challengeAuthenticationProperties, "QaAdfs1");
                 
                 if (await _accountStore.ValidateCredentials(model.Username, model.Password))
                 {
@@ -175,6 +175,7 @@ namespace IdentityServerHost.Quickstart.UI
 
             // something went wrong, show form with error
             var vm = await BuildLoginViewModelAsync(model);
+            
             return View(vm);
         }
 
