@@ -146,7 +146,7 @@ namespace FirstAgenda.IdentityServer.Core.Migrations
             modelBuilder.Entity("FirstAgenda.IdentityServer.Core.Models.AccountProfile", b =>
                 {
                     b.HasOne("FirstAgenda.IdentityServer.Core.Models.Account", "Account")
-                        .WithMany("Profiles")
+                        .WithMany("AccountProfiles")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

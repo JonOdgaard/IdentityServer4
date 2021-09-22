@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FirstAgenda.IdentityServer.Core.Migrations
 {
     [DbContext(typeof(FirstAgendaIdentityStoreContext))]
-    [Migration("20210922124843_Initial9")]
-    partial class Initial9
+    [Migration("20210922132159_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -148,7 +148,7 @@ namespace FirstAgenda.IdentityServer.Core.Migrations
             modelBuilder.Entity("FirstAgenda.IdentityServer.Core.Models.AccountProfile", b =>
                 {
                     b.HasOne("FirstAgenda.IdentityServer.Core.Models.Account", "Account")
-                        .WithMany("Profiles")
+                        .WithMany("AccountProfiles")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

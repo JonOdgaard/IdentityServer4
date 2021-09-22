@@ -83,7 +83,7 @@ namespace FirstAgenda.IdentityServer.Core
         {
             var loginIdLowered = loginId.ToLower();
 
-            return await _context.Accounts.SingleOrDefaultAsync(x => x.LoginId == loginIdLowered);
+            return await _context.Accounts.Include(a => a.AccountProfiles).SingleOrDefaultAsync(x => x.LoginId == loginIdLowered);
         }
 
         public async Task<Account> FindByExternalProvider(string externalProvider, string externalProviderSubjectId)
