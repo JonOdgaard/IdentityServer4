@@ -18,13 +18,16 @@ namespace FirstAgenda.IdentityServer.Core
 {
     public interface IAccountStore
     {
-        public Task<bool> ValidateCredentials(string modelUsername, string modelPassword);
-        Task<FirstAgendaAccount> FindByUserLoginId(string loginId);
-        Task<FirstAgendaAccount> FindByExternalProvider(string externalProvider, string externalProviderSubjectId);
-        Task<FirstAgendaAccount> AutoProvisionUserFromExternalProvider(string externalProviderName, string externalProviderUserId, List<Claim> claims);
-        Task<FirstAgendaAccount> FindBySubjectId(string subjectId);
+        public Task<bool> ValidateCredentials(string incomingLoginId, string incomingPassword);
+        Task<Account> FindByUserLoginId(string loginId);
+        Task<Account> FindByExternalProvider(string externalProvider, string externalProviderSubjectId);
+
+        Task<Account> AutoProvisionUserFromExternalProvider(string externalProviderName, string externalProviderUserId,
+            List<Claim> claims);
+
+        Task<Account> FindBySubjectId(string subjectId);
     }
-    
+
     public class AccountStore : IAccountStore
     {
         private readonly FirstAgendaIdentityStoreContext _context;
@@ -34,20 +37,20 @@ namespace FirstAgenda.IdentityServer.Core
             _context = context;
         }
 
-        public async Task<bool> ValidateCredentials(string username, string password)
+        public async Task<bool> ValidateCredentials(string incomingLoginId, string incomingPassword)
         {
-            var user = await FindByUserLoginId(username);
-            
-            if (user != null)
+            var account = await FindByUserLoginId(incomingLoginId);
+
+            if (account != null)
             {
-                var hashedIncomingPassword = GetHashedPassword(password, user.Salt);
-                
-                return user.PasswordHash.Equals(hashedIncomingPassword);
+                var hashedIncomingPassword = GetHashedPassword(incomingPassword, account.Salt);
+
+                return account.PasswordHash.Equals(hashedIncomingPassword);
             }
-            
+
             return false;
         }
-        
+
         private const string SystemSalt = ";2m_æp2AIEN92j,aq!8(/2.LIKDNkvvemnv,.ÅW22c1jhjaik";
         private const string CodeHash = "jklg@sbjk//(bk#j!hjkhjdfk##!!hjkdjkhjfhjsjhjjhh3hhj7782mkjnk2j34JJJk2kkk3K";
 
@@ -55,14 +58,15 @@ namespace FirstAgenda.IdentityServer.Core
         {
             return Hash(SystemSalt + CodeHash + password, salt);
         }
-        
+
         private string Hash(string value, string salt)
         {
             var i = salt.IndexOf('.');
             var iters = int.Parse(salt.Substring(0, i), System.Globalization.NumberStyles.HexNumber);
             salt = salt.Substring(i + 1);
 
-            using (var pbkdf2 = new Rfc2898DeriveBytes(Encoding.UTF8.GetBytes(value), Convert.FromBase64String(salt), iters))
+            using (var pbkdf2 =
+                new Rfc2898DeriveBytes(Encoding.UTF8.GetBytes(value), Convert.FromBase64String(salt), iters))
             {
                 var key = pbkdf2.GetBytes(24);
 
@@ -70,26 +74,27 @@ namespace FirstAgenda.IdentityServer.Core
             }
         }
 
-        public async Task<FirstAgendaAccount> FindBySubjectId(string subjectId)
+        public async Task<Account> FindBySubjectId(string subjectId)
         {
             return await _context.Accounts.SingleOrDefaultAsync(a => a.SubjectId == subjectId);
         }
 
-        public async Task<FirstAgendaAccount> FindByUserLoginId(string loginId)
+        public async Task<Account> FindByUserLoginId(string loginId)
         {
             var loginIdLowered = loginId.ToLower();
-            
+
             return await _context.Accounts.SingleOrDefaultAsync(x => x.LoginId == loginIdLowered);
         }
 
-        public async Task<FirstAgendaAccount> FindByExternalProvider(string externalProvider, string externalProviderSubjectId)
+        public async Task<Account> FindByExternalProvider(string externalProvider, string externalProviderSubjectId)
         {
             return await _context.Accounts.FirstOrDefaultAsync(x =>
                 x.ExternalProviderName == externalProvider &&
                 x.ExternalProviderSubjectId == externalProviderSubjectId);
         }
 
-        public async Task<FirstAgendaAccount> AutoProvisionUserFromExternalProvider(string externalProviderName, string externalProviderUserId, List<Claim> claims)
+        public async Task<Account> AutoProvisionUserFromExternalProvider(string externalProviderName,
+            string externalProviderUserId, List<Claim> claims)
         {
             // create a list of claims that we want to transfer into our store
             var filtered = new List<Claim>();
@@ -104,7 +109,8 @@ namespace FirstAgenda.IdentityServer.Core
                 // if the JWT handler has an outbound mapping to an OIDC claim use that
                 else if (JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.ContainsKey(claim.Type))
                 {
-                    filtered.Add(new Claim(JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap[claim.Type], claim.Value));
+                    filtered.Add(
+                        new Claim(JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap[claim.Type], claim.Value));
                 }
                 // copy the claim as-is
                 else
@@ -139,7 +145,7 @@ namespace FirstAgenda.IdentityServer.Core
             var userFullName = filtered.FirstOrDefault(c => c.Type == JwtClaimTypes.Name)?.Value ?? sub;
 
             // create new user
-            var user = new FirstAgendaAccount
+            var user = new Account
             {
                 SubjectId = sub,
                 ExternalProviderName = externalProviderName,
@@ -152,10 +158,13 @@ namespace FirstAgenda.IdentityServer.Core
                 Uid = Guid.NewGuid(),
                 PasswordExpired = false,
                 FailedLoginAttempts = 0,
-                Profile = new AccountProfile()
+                AccountProfiles = new List<AccountProfile>()
                 {
-                    UserFullName = userFullName,
-                    // ...
+                    new AccountProfile()
+                    {
+                        UserFullName = userFullName,
+                        // ...
+                    }
                 }
                 // Claims = filtered
             };

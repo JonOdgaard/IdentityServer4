@@ -93,8 +93,8 @@ namespace IdentityServerHost.Quickstart.UI
 
             // lookup our user and external provider info
             var findUserFromExternalProviderResult = await FindUserFromExternalProvider(authenticateResult);
-            var firstAgendaAccount = findUserFromExternalProviderResult.FirstAgendaAccount;
-            if (findUserFromExternalProviderResult.FirstAgendaAccount == null)
+            var firstAgendaAccount = findUserFromExternalProviderResult.Account;
+            if (findUserFromExternalProviderResult.Account == null)
             {
                 // this might be where you might initiate a custom workflow for user registration
                 // in this sample we don't show how that would be done, as our sample implementation
@@ -110,9 +110,10 @@ namespace IdentityServerHost.Quickstart.UI
             ProcessLoginCallback(authenticateResult, additionalLocalClaims, localSignInProps);
 
             // issue authentication cookie for user
+            var profile = firstAgendaAccount.AccountProfiles.Single();
             var identityServerUser = new IdentityServerUser(firstAgendaAccount.SubjectId)
             {
-                DisplayName = firstAgendaAccount.Profile.UserFullName,
+                DisplayName = profile.UserFullName,
                 IdentityProvider = findUserFromExternalProviderResult.ExternalProviderName,
                 AdditionalClaims = additionalLocalClaims
             };
@@ -128,7 +129,7 @@ namespace IdentityServerHost.Quickstart.UI
             // check if external login is in the context of an OIDC request
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
             await _events.RaiseAsync(new UserLoginSuccessEvent(findUserFromExternalProviderResult.ExternalProviderName, findUserFromExternalProviderResult.ExternalProviderUserId, firstAgendaAccount.SubjectId,
-                firstAgendaAccount.Profile.UserFullName,
+                profile.UserFullName,
                 true, context?.Client.ClientId));
 
             if (context != null)
@@ -146,7 +147,7 @@ namespace IdentityServerHost.Quickstart.UI
 
         private class FindUserFromExternalProviderResult
         {
-            public FirstAgendaAccount FirstAgendaAccount;
+            public Account Account;
             public string ExternalProviderName;
             public string ExternalProviderUserId;
             public IEnumerable<Claim> ExternalUserClaims;
@@ -176,14 +177,14 @@ namespace IdentityServerHost.Quickstart.UI
 
             return new FindUserFromExternalProviderResult()
             {
-                FirstAgendaAccount = user,
+                Account = user,
                 ExternalProviderName = provider,
                 ExternalProviderUserId = providerUserId,
                 ExternalUserClaims = claims
             };
         }
 
-        private async Task<FirstAgendaAccount> AutoProvisionNewExternalUser(FindUserFromExternalProviderResult findUserFromExternalProviderResult)
+        private async Task<Account> AutoProvisionNewExternalUser(FindUserFromExternalProviderResult findUserFromExternalProviderResult)
         {
             var user = await _accountStore.AutoProvisionUserFromExternalProvider(findUserFromExternalProviderResult.ExternalProviderName, findUserFromExternalProviderResult.ExternalProviderUserId, findUserFromExternalProviderResult.ExternalUserClaims.ToList());
 

@@ -32,6 +32,7 @@ namespace IdentityServerHost.Quickstart.UI
     public class AccountController : Controller
     {
         private readonly IAccountStore _accountStore;
+        private readonly IHomeRealmDiscoveryService _homeRealmDiscoveryService;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
@@ -42,9 +43,11 @@ namespace IdentityServerHost.Quickstart.UI
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events,
-            IAccountStore accountStore)
+            IAccountStore accountStore,
+            IHomeRealmDiscoveryService homeRealmDiscoveryService)
         {
             _accountStore = accountStore;
+            _homeRealmDiscoveryService = homeRealmDiscoveryService;
             _interaction = interaction;
             _clientStore = clientStore;
             _schemeProvider = schemeProvider;
@@ -108,17 +111,24 @@ namespace IdentityServerHost.Quickstart.UI
 
             if (ModelState.IsValid)
             {
+                var hrd = await _homeRealmDiscoveryService.GetInfo(model.Username);
+
                 var challengeAuthenticationProperties = new AuthenticationProperties
                 {
-                    // RedirectUri = "/wsfed/1234"
                 };
 
-                return Challenge(challengeAuthenticationProperties, "QaAdfs1");
-                
+                if (hrd != null)
+                {
+                    return Challenge(challengeAuthenticationProperties, hrd.ExternalProviderId);
+                }
+
                 if (await _accountStore.ValidateCredentials(model.Username, model.Password))
                 {
                     var user = await _accountStore.FindByUserLoginId(model.Username);
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.Profile.UserFullName, user.SubjectId, user.Profile.UserFullName, clientId: context?.Client.ClientId));
+                    var profile = user.AccountProfiles.Single();
+                    
+                    await _events.RaiseAsync(new UserLoginSuccessEvent(profile.UserFullName, user.SubjectId,
+                        profile.UserFullName, clientId: context?.Client.ClientId));
 
                     // only set explicit expiration here if user chooses "remember me". 
                     // otherwise we rely upon expiration configured in cookie middleware.
@@ -130,12 +140,12 @@ namespace IdentityServerHost.Quickstart.UI
                             IsPersistent = true,
                             ExpiresUtc = DateTimeOffset.UtcNow.Add(AccountOptions.RememberMeLoginDuration)
                         };
-                    };
+                    }
 
                     // issue authentication cookie with subject ID and username
                     var isuser = new IdentityServerUser(user.SubjectId)
                     {
-                        DisplayName = user.Profile.UserFullName
+                        DisplayName = profile.UserFullName
                     };
 
                     await HttpContext.SignInAsync(isuser, props);
@@ -169,17 +179,18 @@ namespace IdentityServerHost.Quickstart.UI
                     }
                 }
 
-                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId:context?.Client.ClientId));
+                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials",
+                    clientId: context?.Client.ClientId));
                 ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
             }
 
             // something went wrong, show form with error
             var vm = await BuildLoginViewModelAsync(model);
-            
+
             return View(vm);
         }
 
-        
+
         /// <summary>
         /// Show logout page
         /// </summary>
@@ -286,7 +297,8 @@ namespace IdentityServerHost.Quickstart.UI
 
                     if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any())
                     {
-                        providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
+                        providers = providers.Where(provider =>
+                            client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
                     }
                 }
             }

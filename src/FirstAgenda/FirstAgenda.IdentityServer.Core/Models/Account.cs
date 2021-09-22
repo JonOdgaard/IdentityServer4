@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace FirstAgenda.IdentityServer.Core.Models
 {
-    public class FirstAgendaAccount
+    public class Account
     {
-        public FirstAgendaAccount() { }
+        public Account() { }
         
         public int Id { get; set; }
         
@@ -37,8 +38,6 @@ namespace FirstAgenda.IdentityServer.Core.Models
         public bool PasswordExpired { get; set; }
         public int FailedLoginAttempts { get; set; }
 
-        public AccountProfile Profile { get; set; }
-        
         /// <summary>
         /// Is true, the user must use two factor authentication using SMS token when signing in using forms authentication
         /// </summary>
@@ -49,5 +48,7 @@ namespace FirstAgenda.IdentityServer.Core.Models
         /// </summary>
         [MaxLength(100)]
         public string TwoFactorAuthenticationMobilePhone { get; set; }
+        
+        public List<AccountProfile> AccountProfiles { get; set; }
     }
 }

@@ -117,9 +117,9 @@ namespace IdentityServerHost
 
                 return Task.FromResult(principal);
             });
+            
+            builder.Services.AddTransient<IHomeRealmDiscoveryService, HomeRealmDiscoveryService>();
         }
-
-
 
         public void Configure(IApplicationBuilder app)
         {

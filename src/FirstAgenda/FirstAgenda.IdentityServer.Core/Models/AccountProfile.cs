@@ -19,6 +19,8 @@ namespace FirstAgenda.IdentityServer.Core.Models
         public bool HasProfilePicture { get; set; }
         public string ProfilePictureStorageBucket { get; set; }
         public string ProfilePictureStorageKey { get; set; }
+        
+        public virtual Account Account { get; set; }
 
     }
 }

@@ -4,14 +4,16 @@ using FirstAgenda.IdentityServer.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FirstAgenda.IdentityServer.Core.Migrations
 {
     [DbContext(typeof(FirstAgendaIdentityStoreContext))]
-    partial class FirstAgendaIdentityStoreContextModelSnapshot : ModelSnapshot
+    [Migration("20210922124135_Initial8")]
+    partial class Initial8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,6 +91,9 @@ namespace FirstAgenda.IdentityServer.Core.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("AccountId1")
+                        .HasColumnType("int");
+
                     b.Property<bool>("HasProfilePicture")
                         .HasColumnType("bit");
 
@@ -115,6 +120,8 @@ namespace FirstAgenda.IdentityServer.Core.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
+
+                    b.HasIndex("AccountId1");
 
                     b.ToTable("AccountProfile");
                 });
@@ -146,10 +153,14 @@ namespace FirstAgenda.IdentityServer.Core.Migrations
             modelBuilder.Entity("FirstAgenda.IdentityServer.Core.Models.AccountProfile", b =>
                 {
                     b.HasOne("FirstAgenda.IdentityServer.Core.Models.Account", "Account")
-                        .WithMany("Profiles")
+                        .WithMany()
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("FirstAgenda.IdentityServer.Core.Models.Account", null)
+                        .WithMany("Profiles")
+                        .HasForeignKey("AccountId1");
                 });
 #pragma warning restore 612, 618
         }

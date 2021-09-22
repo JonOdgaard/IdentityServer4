@@ -4,14 +4,16 @@ using FirstAgenda.IdentityServer.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FirstAgenda.IdentityServer.Core.Migrations
 {
     [DbContext(typeof(FirstAgendaIdentityStoreContext))]
-    partial class FirstAgendaIdentityStoreContextModelSnapshot : ModelSnapshot
+    [Migration("20210922113424_Initial7")]
+    partial class Initial7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,6 +61,9 @@ namespace FirstAgenda.IdentityServer.Core.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ProfileId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Salt")
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
@@ -76,6 +81,8 @@ namespace FirstAgenda.IdentityServer.Core.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProfileId");
+
                     b.ToTable("Account");
                 });
 
@@ -85,9 +92,6 @@ namespace FirstAgenda.IdentityServer.Core.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("AccountId")
-                        .HasColumnType("int");
 
                     b.Property<bool>("HasProfilePicture")
                         .HasColumnType("bit");
@@ -113,8 +117,6 @@ namespace FirstAgenda.IdentityServer.Core.Migrations
                         .HasMaxLength(300);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
 
                     b.ToTable("AccountProfile");
                 });
@@ -143,13 +145,11 @@ namespace FirstAgenda.IdentityServer.Core.Migrations
                     b.ToTable("ExternalProvider");
                 });
 
-            modelBuilder.Entity("FirstAgenda.IdentityServer.Core.Models.AccountProfile", b =>
+            modelBuilder.Entity("FirstAgenda.IdentityServer.Core.Models.Account", b =>
                 {
-                    b.HasOne("FirstAgenda.IdentityServer.Core.Models.Account", "Account")
-                        .WithMany("Profiles")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("FirstAgenda.IdentityServer.Core.Models.AccountProfile", "Profile")
+                        .WithMany()
+                        .HasForeignKey("ProfileId");
                 });
 #pragma warning restore 612, 618
         }
