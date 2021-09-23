@@ -15,6 +15,7 @@ using FirstAgenda.IdentityServer.Core;
 using IdentityServer4.Test;
 using IdentityServerHost.Extensions;
 using Microsoft.AspNetCore.Authentication.WsFederation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 
@@ -133,7 +134,8 @@ namespace IdentityServerHost
 
             app.UseCertificateForwarding();
             app.UseCookiePolicy();
-
+            // app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
+            
             app.UseSerilogRequestLogging();
 
             app.UseDeveloperExceptionPage();
