@@ -82,34 +82,7 @@ namespace IdentityServerHost
             //         sql => sql.MigrationsAssembly(migrationsAssembly));
             // });
 
-
             services.AddExternalIdentityProviders();
-
-            // services.AddAuthentication()
-            //     .AddCertificate(options =>
-            //     {
-            //         options.AllowedCertificateTypes = CertificateTypes.All;
-            //         options.RevocationMode = X509RevocationMode.NoCheck;
-            //     })
-            //     .AddWsFederation(options =>
-            //     {
-            //         options.MetadataAddress =
-            //             "https://adfs1.firstagenda.com/FederationMetadata/2007-06/FederationMetadata.xml";
-            //         options.RequireHttpsMetadata = true;
-            //
-            //         options.Wtrealm = "https://localhost:5001/";
-            //
-            //         options.CallbackPath = "/adfs/callback";
-            //         options.SkipUnrecognizedRequests = true;
-            //         options.Events = new WsFederationEvents()
-            //         {
-            //             OnSecurityTokenReceived = OnSecurityTokenReceived,
-            //             OnSecurityTokenValidated = OnSecurityTokenValidated
-            //         };
-            //         
-            //         options.SecurityTokenHandlers.Add(new EncryptedSecurityToken());
-            //     });
-
             services.AddCertificateForwardingForNginx();
 
             services.AddLocalApiAuthentication(principal =>
